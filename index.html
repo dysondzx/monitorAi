@@ -1,94 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>前端智能监控原型</title>
-    <script src="./vue.global.js"></script>
-    <script src="./tf4.21.0.min.js"></script>
-    <link rel="stylesheet" href="index.css"/>
-</head>
-<body>
-    <div id="app">
-        <div class="app-container">
-            <h1>前端智能监控原型系统</h1>
-            <p class="simulation-speed">
-                <strong>模拟速度调节：</strong>
-                <label v-for="(speed, index) in speeds" :key="index">
-                    <input type="radio" v-model="selectedSpeed" :value="speed.value"> {{ speed.label }}
-                </label>
-            </p>
-
-            <div class="model-controls">
-                <button class="btn btn-primary" @click="initModels">初始化模型</button>
-                <button class="btn btn-success" @click="startMonitoring" :disabled="!modelReady">启动监控</button>
-                <button class="btn btn-danger" @click="stopMonitoring">停止监控</button>
-                <button class="btn" @click="resetSystem">重置系统</button>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" :style="{ width: modelLoadProgress + '%' }"></div>
-                </div>
-                <div v-if="modelLoadProgress < 100">模型加载中: {{ modelLoadProgress }}%</div>
-                <div v-else style="color:#27ae60">模型已准备就绪!</div>
-            </div>
-
-            <div class="model-stats">
-                <div class="stat-card">
-                    <div class="stat-label">设备状态识别准确率</div>
-                    <div class="stat-value">{{ accuracy }}%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">异常检测率</div>
-                    <div class="stat-value">{{ anomalyDetectionRate }}%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">内存占用</div>
-                    <div class="stat-value">{{ memoryUsage }} MB</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">已处理数据点</div>
-                    <div class="stat-value">{{ processedDataPoints }}</div>
-                </div>
-            </div>
-
-            <div class="dashboard">
-                <div class="card">
-                    <h2 class="section-title">设备状态监控</h2>
-                    <div class="status-display">
-                        <p v-if="modelReady">
-                            <span :class="'status-indicator status-' + deviceStatus"></span>
-                            当前状态: <strong>{{ deviceStatusDisplay }}</strong>
-                        </p>
-                        <p v-else>模型未启动</p>
-                    </div>
-                    <canvas id="deviceCanvas" width="500" height="300"></canvas>
-                </div>
-
-                <div class="card">
-                    <h2 class="section-title">网络流量异常检测</h2>
-                    <div>
-                        <p v-if="modelReady">
-                            <span :class="'status-indicator status-' + trafficStatus"></span>
-                            网络状态: <strong>{{ trafficStatusDisplay }}</strong>
-                        </p>
-                        <p v-else>模型未启动</p>
-                    </div>
-                    <canvas id="trafficChart" width="500" height="300"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2 class="section-title">系统日志</h2>
-                <div class="log-container">
-                    <div v-for="(log, index) in logs" :key="index" class="log-entry" :class="log.type">
-                        {{ log.message }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="./index.js"></script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>monitor-sys</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>
