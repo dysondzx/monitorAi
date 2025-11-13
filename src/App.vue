@@ -8,10 +8,6 @@ const trafficStatus = ref('normal');
 const modelReady = ref(false);
 const isMonitoring = ref(false);
 const logs = ref([]);
-const memoryUsage = ref(0);
-const accuracy = ref(92);
-const anomalyDetectionRate = ref(88);
-const processedDataPoints = ref(0);
 const modelLoadProgress = ref(0);
 const selectedSpeed = ref(2000);
 
@@ -101,7 +97,10 @@ const createTrafficModel = () => {
             inputShape: [10, 1],
             returnSequences: false
         }));
-        model.add(tf.layers.dense({ units: 1 }));
+        model.add(tf.layers.dense({ 
+            units: 1,
+            activation: 'sigmoid'
+        }));
         
         // 编译模型
         model.compile({
@@ -333,8 +332,8 @@ const drawTrafficChart = (data, status) => {
     ctx.lineWidth = 2;
     
     // 根据状态绘制不同的阈值线
-    const warningThreshold = 70;
-    const dangerThreshold = 85;
+    const warningThreshold = 80;
+    const dangerThreshold = 90;
     
     // 警告线
     const yWarning = height * (1 - warningThreshold / 100);
@@ -447,7 +446,7 @@ const detectTrafficAnomaly = async (data) => {
             // 进行预测
             const prediction = await trafficModel.predict(input);
             const value = prediction.dataSync()[0];
-            
+
             // 清理内存
             tf.dispose([input, prediction]);
             
@@ -501,7 +500,6 @@ const processDeviceImage = async () => {
         // 从Canvas获取图像数据
         const imageData = deviceCtx.getImageData(0, 0, canvas.width, canvas.height);
         
-        // 确保我们捕获到异常并优雅处理
         try {
             // 创建Tensor
             let tensor = tf.browser.fromPixels(imageData);
@@ -562,8 +560,6 @@ const processDeviceImage = async () => {
 const monitoringTask = async () => {
     if (!isMonitoring.value) return;
     
-    processedDataPoints.value++;
-    
     // 任务1: 设备状态识别
     drawDeviceImage(deviceStatus.value);
     const imgStatus = await processDeviceImage();
@@ -572,15 +568,6 @@ const monitoringTask = async () => {
     const trafficData = generateTrafficData();
     const trafficStatusResult = await detectTrafficAnomaly(trafficData);
     drawTrafficChart(trafficData, trafficStatusResult);
-    
-    // 模拟内存使用变化
-    memoryUsage.value = (Math.random() * 2 + 8).toFixed(1);
-    
-    // 每50个数据点更新一次准确率
-    if (processedDataPoints.value % 50 === 0) {
-        accuracy.value = Math.max(85, Math.min(99, accuracy.value + (Math.random() * 2 - 1)));
-        anomalyDetectionRate.value = Math.max(85, Math.min(97, anomalyDetectionRate.value + (Math.random() * 2 - 1)));
-    }
     
     // 随机生成日志信息
     if (Math.random() < 0.2) {
@@ -650,10 +637,6 @@ const resetSystem = () => {
     trafficStatus.value = 'normal';
     modelReady.value = false;
     logs.value = [];
-    memoryUsage.value = 0;
-    accuracy.value = 92;
-    anomalyDetectionRate.value = 88;
-    processedDataPoints.value = 0;
     modelLoadProgress.value = 0;
     selectedSpeed.value = 2000;
     
@@ -726,25 +709,6 @@ onMounted(async () => {
             </div>
             <div v-if="modelLoadProgress < 100">模型加载中: {{ modelLoadProgress }}%</div>
             <div v-else style="color:#27ae60">模型已准备就绪!</div>
-        </div>
-
-        <div class="model-stats">
-            <div class="stat-card">
-                <div class="stat-label">设备状态识别准确率</div>
-                <div class="stat-value">{{ accuracy }}%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">异常检测率</div>
-                <div class="stat-value">{{ anomalyDetectionRate }}%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">内存占用</div>
-                <div class="stat-value">{{ memoryUsage }} MB</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">已处理数据点</div>
-                <div class="stat-value">{{ processedDataPoints }}</div>
-            </div>
         </div>
 
         <div class="dashboard">
